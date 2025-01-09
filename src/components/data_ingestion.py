@@ -70,5 +70,5 @@ if __name__ == "__main__":
         print(model_trainer.initiate_model_trainer(train_array, test_array))
     
     except Exception as e:
-        logging.error(f"An error occurred in data ingestion pipeline: {e}")
+        logging.info(f"An error occurred in data ingestion pipeline: {e}")
         raise CustomException(e, sys)
