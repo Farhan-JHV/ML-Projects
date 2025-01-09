@@ -1,11 +1,12 @@
 import os
 import sys
-from src.exception import CustomException
-from src.logger import logging
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
-from src.components.data_transformation import DataTransformation, DataTransformationConfig
+from src.exception import CustomException
+from src.logger import logging
+from src.components.data_transformation import DataTransformation
+from src.components.model_trainer import ModelTrainer
 
 @dataclass
 class DataIngestionConfig:
@@ -50,12 +51,24 @@ class DataIngestion:
             )
         except Exception as e:
             # In case of any exception, raise a custom exception with traceback information
+            logging.error(f"An error occurred: {e}")
             raise CustomException(e, sys)
         
 # Entry point for initiating data ingestion when running the script
 if __name__ == "__main__":
-    obj = DataIngestion()  # Initialize the DataIngestion object
-    train_data, test_data = obj.initiate_data_ingestion()  # Start the data ingestion process
+    try:
+        # Initialize the DataIngestion object and start the ingestion process
+        obj = DataIngestion()  
+        train_data, test_data = obj.initiate_data_ingestion()  # Start the data ingestion process
 
-    data_transformation = DataTransformation()
-    data_transformation.initate_data_transformation(train_data, test_data)
+        # Proceed to data transformation
+        data_transformation = DataTransformation()
+        train_array, test_array, additional_info = data_transformation.initate_data_transformation(train_data, test_data)
+        
+        # Train the model using the transformed data
+        model_trainer = ModelTrainer()
+        print(model_trainer.initiate_model_trainer(train_array, test_array))
+    
+    except Exception as e:
+        logging.error(f"An error occurred in data ingestion pipeline: {e}")
+        raise CustomException(e, sys)
